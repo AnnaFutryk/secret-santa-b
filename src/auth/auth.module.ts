@@ -8,6 +8,7 @@ import { AuthHelpersService } from './helpers/auth-helpers.service';
 @Module({
   imports: [
     JwtModule.registerAsync({
+      global: true,
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('JWT_SECRET'),
       }),
