@@ -14,6 +14,4 @@ export class SignInDto {
   @ApiProperty({ type: String, required: true, example: 'SecurePassword123!' })
   @IsNotEmpty()
   password: string;
-
-
 }

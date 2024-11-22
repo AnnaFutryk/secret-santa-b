@@ -2,7 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  UnauthorizedException
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
@@ -33,14 +33,14 @@ export class AuthService {
 
     const hashedPassword = await hash(data.password, 10);
 
-
     const newUser = await this.prismaService.user.create({
       data: {
         name: data.name,
         email: data.email,
         password: hashedPassword,
-      }})
-    
+      },
+    });
+
     const tokens = this.authHelpers.generateTokens(newUser.id);
     const userWithoutPassword = omitPassword(newUser);
 
@@ -71,7 +71,7 @@ export class AuthService {
       );
     }
 
-    const tokens =  this.authHelpers.generateTokens(user.id);
+    const tokens = this.authHelpers.generateTokens(user.id);
     const userWithoutPassword = omitPassword(user);
 
     return {
@@ -93,5 +93,4 @@ export class AuthService {
 
     return this.authHelpers.generateTokens(verified.sub);
   }
-
 }

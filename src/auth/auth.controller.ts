@@ -1,18 +1,8 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthResponse, TokensResponse } from 'types';
 import { AuthService } from './auth.service';
-import {
-  RefreshTokenDto,
-  SignInDto,
-  SignUpDto,
-} from './dtos';
+import { RefreshTokenDto, SignInDto, SignUpDto } from './dtos';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -71,6 +61,4 @@ export class AuthController {
   async refresh(@Body() data: RefreshTokenDto): Promise<TokensResponse> {
     return await this.authService.refresh(data.refreshToken);
   }
-
-
 }

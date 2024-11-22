@@ -5,9 +5,7 @@ import { TokensResponse } from 'types';
 
 @Injectable()
 export class AuthHelpersService {
-  constructor(
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   generateTokens(id: string): TokensResponse {
     const accessToken = this.jwtService.sign({ id }, { expiresIn: '30m' });

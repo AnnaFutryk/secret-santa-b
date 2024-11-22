@@ -20,9 +20,9 @@ export default {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-explicit-any': 1,
     'prettier/prettier': 0,
-    'import/no-unused-modules': [1, { unusedExports: true }], 
-    'import/no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: true }],
+    'import/no-unused-modules': 1, 
+    'import/no-unused-vars': 1,
   },
 };
