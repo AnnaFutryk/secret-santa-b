@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class SignInDto {
   @ApiProperty({
@@ -15,7 +15,5 @@ export class SignInDto {
   @IsNotEmpty()
   password: string;
 
-  @ApiProperty({ type: Array, required: true })
-  @IsArray()
-  cart: { productId: string; quantity: number }[];
+
 }

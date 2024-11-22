@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { TokensResponse } from '../../../types/tokens-response.type';
+import { TokensResponse } from 'types';
 
 @Injectable()
 export class AuthHelpersService {
