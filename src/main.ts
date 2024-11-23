@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Santa Secret')
-    .setDescription('TThe Santa Secret Backend docs :)')
+    .setDescription('The Santa Secret Backend docs for ♥ Maria ♥ :)')
     .setVersion('1.0')
     .build();
 

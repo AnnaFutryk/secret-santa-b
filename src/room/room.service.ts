@@ -61,6 +61,17 @@ export class RoomService {
   }
 
   async createRoom({ data, id }: { data: CreateRoomDto; id: string }) {
+    const existingRoomWithCurrentTitle = await this.prisma.room.findFirst({
+      where: {
+        owner: id, 
+        title: data.title,
+      },
+    });
+
+    if (existingRoomWithCurrentTitle) {
+      throw new ConflictException("The room with that title already created, choose another title")
+    }
+
     const room = await this.prisma.room.create({
       data: {
         title: data.title,

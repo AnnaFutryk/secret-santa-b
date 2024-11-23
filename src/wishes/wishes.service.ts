@@ -3,7 +3,7 @@ import { PrismaService } from "libs/common";
 import { WishDto } from "./dto/wish.dto";
 
 @Injectable()
-export class UserService {
+export class WishesService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async createOrUpdateWish(roomId: string, wishDto: WishDto, userId: string) {
@@ -11,7 +11,7 @@ export class UserService {
       where: { id: roomId },
     });
     if (!roomExists) {
-      throw new NotFoundException("Room ot found");
+      throw new NotFoundException("Room тot found");
     }
 
     const existingWish = await this.prismaService.wish.findUnique({
