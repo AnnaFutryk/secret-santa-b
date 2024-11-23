@@ -1,21 +1,45 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'libs/common';
-import { User } from 'types';
-import { omitPassword } from 'utils/omitPassword';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { PrismaService } from "libs/common";
+import { WishDto } from "./dto/wish.dto";
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService){}
+  constructor(private readonly prismaService: PrismaService) {}
 
-  async getMe(id: string): Promise<Omit<User, "password">> {
-
-    const user = await this.prisma.user.findUnique({where: { id }})
-
-    if (!user) {
-      throw new NotFoundException("User with that credentials wasn't found")
+  async createOrUpdateWish(roomId: string, wishDto: WishDto, userId: string) {
+    const roomExists = await this.prismaService.room.findUnique({
+      where: { id: roomId },
+    });
+    if (!roomExists) {
+      throw new NotFoundException("Room ot found");
     }
-    
-    return omitPassword(user)
-  }
 
+    const existingWish = await this.prismaService.wish.findUnique({
+      where: {
+        userId_roomId: {
+          userId,
+          roomId,
+        },
+      },
+    });
+
+    if (existingWish) {
+      return this.prismaService.wish.update({
+        where: {
+          id: existingWish.id,
+        },
+        data: {
+          content: wishDto.content,
+        },
+      });
+    }
+
+    return this.prismaService.wish.create({
+      data: {
+        content: wishDto.content,
+        userId: userId,
+        roomId: roomId,
+      },
+    });
+  }
 }

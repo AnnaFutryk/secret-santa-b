@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common/decorators';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common/exceptions';
+import {
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common/exceptions';
 import { CanActivate, ExecutionContext } from '@nestjs/common/interfaces';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -10,7 +13,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private readonly config: ConfigService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -26,10 +29,14 @@ export class AuthGuard implements CanActivate {
         secret: this.config.get('JWT_SECRET') as string,
       });
 
-      const userExist = await this.prisma.user.findUnique({where: {id: payload.id}})
+      const userExist = await this.prisma.user.findUnique({
+        where: { id: payload.id },
+      });
 
       if (!userExist) {
-        throw new NotFoundException("The user with that credential wasn't found")
+        throw new NotFoundException(
+          "The user with that credential wasn't found",
+        );
       }
 
       request['user'] = payload.id;
