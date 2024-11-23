@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "User" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -10,10 +10,10 @@ CREATE TABLE "User" (
 
 -- CreateTable
 CREATE TABLE "Room" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "owner" UUID NOT NULL,
-    "limit" DOUBLE PRECISION NOT NULL,
+    "limit" INTEGER NOT NULL,
     "url" TEXT,
 
     CONSTRAINT "Room_pkey" PRIMARY KEY ("id")
@@ -21,18 +21,18 @@ CREATE TABLE "Room" (
 
 -- CreateTable
 CREATE TABLE "Wish" (
-    "id" UUID NOT NULL,
+    "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "userId" UUID NOT NULL,
-    "roomId" UUID NOT NULL,
+    "userId" TEXT NOT NULL,
+    "roomId" TEXT NOT NULL,
 
     CONSTRAINT "Wish_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "_UserRooms" (
-    "A" UUID NOT NULL,
-    "B" UUID NOT NULL
+    "A" TEXT NOT NULL,
+    "B" TEXT NOT NULL
 );
 
 -- CreateIndex

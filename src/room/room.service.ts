@@ -89,11 +89,11 @@ export class RoomService {
     });
 
     if (!room) {
-      throw new NotFoundException('Кімнату не знайдено');
+      throw new NotFoundException('Room not found');
     }
 
     if (room.users.some(user => user.id === userId)) {
-      throw new ConflictException('Користувач вже в кімнаті');
+      throw new ConflictException('User is already in room');
     }
 
     return this.prisma.room.update({
@@ -108,13 +108,18 @@ export class RoomService {
 
   async deleteRoom(id: string) {
     const room = await this.prisma.room.findUnique({ where: { id } });
-
+  
     if (!room) {
-      throw new NotFoundException('Кімнату не знайдено');
+      throw new NotFoundException('Room not found');
     }
 
+    await this.prisma.wish.deleteMany({
+      where: { roomId: id },
+    });
+  
     return this.prisma.room.delete({ where: { id } });
   }
+  
 
   private async encryptLink(roomId: string): Promise<string> {
     const frontendLink = this.config.get('FRONT_END_URL');

@@ -44,9 +44,9 @@ export class RoomController {
   @ApiOperation({ summary: 'Join a room' })
   @ApiResponse({ status: 200, description: 'User successfully joined the room.' })
   @Auth()
-  @Post('join')
-  async joinRoom(@Req() req: UserRequest, @Body() joinRoomDto: JoinRoomDto) {
-    return this.roomService.joinRoom(joinRoomDto.id, req.user);
+  @Post('join/:link')
+  async joinRoom(@Req() req: UserRequest, @Param() {link}: JoinRoomDto) {
+    return this.roomService.joinRoom(link, req.user);
   }
 
   @ApiOperation({ summary: 'Create a room' })
@@ -60,8 +60,8 @@ export class RoomController {
   @ApiOperation({ summary: 'Delete a room' })
   @ApiResponse({ status: 200, description: 'Room deleted successfully.' })
   @Auth()
-  @Delete()
-  async deleteRoom(@Body() { id }: DeleteRoomDto) {
-    return this.roomService.deleteRoom(id);
+  @Delete(":roomId")
+  async deleteRoom(@Param() { roomId }: DeleteRoomDto) {
+    return this.roomService.deleteRoom(roomId);
   }
 }
