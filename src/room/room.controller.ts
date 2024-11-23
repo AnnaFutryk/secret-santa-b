@@ -54,9 +54,9 @@ export class RoomController {
     description: 'User is already in the room.',
   })
   @Auth()
-  @Post('join/:link')
-  async joinRoom(@Req() req: UserRequest, @Param() { link }: JoinRoomDto) {
-    return this.roomService.joinRoom(link, req.user);
+  @Post('join/:token')
+  async joinRoom(@Req() req: UserRequest, @Param() { token }: JoinRoomDto) {
+    return this.roomService.joinRoom(token, req.user);
   }
 
   @ApiOperation({ summary: 'Create a room' })
