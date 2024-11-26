@@ -1,8 +1,8 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthResponse, TokensResponse } from 'types';
+import { AuthResponse } from 'types';
 import { AuthService } from './auth.service';
-import { RefreshTokenDto, SignInDto, SignUpDto } from './dtos';
+import { SignInDto, SignUpDto } from './dtos';
 
 @Controller('auth')
 @ApiTags('Auth endpoints')
@@ -84,30 +84,6 @@ export class AuthController {
     return await this.authService.signIn(data);
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Post('refresh')
-  @ApiResponse({
-    status: 200,
-    description: 'The auth tokens were refreshed successfully.',
-    type: TokensResponse,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Unauthorized: Invalid or expired refresh token.',
-    schema: {
-      example: {
-        statusCode: 401,
-        message: 'Invalid or expired refresh token.',
-        error: 'Unauthorized',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal server error. Please try again later.',
-  })
-  @ApiOperation({ summary: 'Refresh Users Tokens' })
-  async refresh(@Body() data: RefreshTokenDto): Promise<TokensResponse> {
-    return await this.authService.refresh(data.refreshToken);
-  }
+
+  
 }

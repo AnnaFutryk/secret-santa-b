@@ -7,18 +7,26 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { compare, hash } from 'bcrypt';
 import { PrismaService } from 'libs/common';
-import { AuthResponse, TokensResponse } from 'types';
+import { AuthResponse, TokenResponse } from 'types';
 import { omitPassword } from 'utils/omitPassword';
 import { SignInDto, SignUpDto } from './dtos';
-import { AuthHelpersService } from './helpers/auth-helpers.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
-    private readonly authHelpers: AuthHelpersService,
   ) {}
+
+  private generateSessionToken(id: string): TokenResponse {
+    const sessionToken = this.jwtService.sign({ id });
+    return {
+      sessionToken,
+      sessionTokenValidUntil: new Date(
+        new Date().setDate(new Date().getDate() + 5),
+      ),
+    };
+  }
 
   async signUp(data: SignUpDto): Promise<AuthResponse> {
     const isUserExists = await this.prismaService.user.findUnique({
@@ -41,7 +49,7 @@ export class AuthService {
       },
     });
 
-    const tokens = this.authHelpers.generateTokens(newUser.id);
+    const tokens = this.generateSessionToken(newUser.id);
     const userWithoutPassword = omitPassword(newUser);
 
     return {
@@ -71,7 +79,7 @@ export class AuthService {
       );
     }
 
-    const tokens = this.authHelpers.generateTokens(user.id);
+    const tokens = this.generateSessionToken(user.id);
     const userWithoutPassword = omitPassword(user);
 
     return {
@@ -82,15 +90,5 @@ export class AuthService {
     };
   }
 
-  async refresh(refreshToken: string): Promise<TokensResponse> {
-    const verified = this.jwtService.verify(refreshToken);
 
-    if (!verified) {
-      throw new UnauthorizedException(
-        'The Token is Invalid or Expired, Please Sign-In',
-      );
-    }
-
-    return this.authHelpers.generateTokens(verified.sub);
-  }
 }
