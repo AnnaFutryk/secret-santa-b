@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
   Param,
   Post,
   Req
@@ -13,13 +12,13 @@ import { Auth } from 'libs/entities/decorators';
 import { UserRequest } from 'types/user-request';
 import { CreateRoomDto } from './dto/create.dto';
 import { DeleteRoomDto } from './dto/delete.dto';
-import { JoinRoomDto } from './dto/join.dto';
-import { RoomService } from './room.service';
+import { RoomsGateway } from './rooms.gateway';
+import { RoomsService } from './rooms.service';
 
 @ApiTags('Room endpoints')
-@Controller('room')
-export class RoomController {
-  constructor(private readonly roomService: RoomService) {}
+@Controller('rooms')
+export class RoomsController {
+  constructor(private readonly roomService: RoomsService,  private readonly roomsGateway: RoomsGateway) {}
 
   @ApiOperation({ summary: 'Get rooms I am a member of' })
   @ApiResponse({ status: 200, description: 'List of rooms retrieved successfully.' })
@@ -33,31 +32,6 @@ export class RoomController {
     return this.roomService.getUserRooms(req.user);
   }
 
-  @ApiOperation({ summary: 'Get a specific room by ID' })
-  @ApiResponse({ status: 200, description: 'Room found successfully.' })
-  @ApiResponse({ status: 404, description: 'Room not found.' })
-  @Auth()
-  @Get(':roomId')
-  async getRoomById(@Param('roomId') roomId: string) {
-    const room = await this.roomService.getRoomById(roomId);
-    if (!room) {
-      throw new NotFoundException('Room with the specified ID not found.');
-    }
-    return room;
-  }
-
-  @ApiOperation({ summary: 'Join a room' })
-  @ApiResponse({ status: 200, description: 'User successfully joined the room.' })
-  @ApiResponse({ status: 404, description: 'Room not found.' })
-  @ApiResponse({
-    status: 409,
-    description: 'User is already in the room.',
-  })
-  @Auth()
-  @Post('join/:token')
-  async joinRoom(@Req() req: UserRequest, @Param() { token }: JoinRoomDto) {
-    return this.roomService.joinRoom(token, req.user);
-  }
 
   @ApiOperation({ summary: 'Create a room' })
   @ApiResponse({ status: 201, description: 'Room created successfully.' })

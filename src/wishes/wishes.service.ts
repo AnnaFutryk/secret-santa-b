@@ -1,12 +1,15 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "libs/common";
 import { WishDto } from "./dto/wish.dto";
 
 @Injectable()
 export class WishesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService, private readonly jwt: JwtService) {}
 
-  async createOrUpdateWish(roomId: string, wishDto: WishDto, userId: string) {
+  async createOrUpdateWish(roomId: string, wishDto: WishDto, token: string) {
+    const decodedToken = this.jwt.verify(token); // verify перевіряє токен і декодує його
+    const userId = decodedToken.id; // отримуємо userId
     const roomExists = await this.prismaService.room.findUnique({
       where: { id: roomId },
     });

@@ -8,11 +8,12 @@ import { ConfigService, PrismaService } from 'libs/common';
 import { CreateRoomDto } from './dto/create.dto';
 
 @Injectable()
-export class RoomService {
+export class RoomsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
+ 
   ) {}
 
   async getUserRooms(userId: string) {
@@ -43,7 +44,7 @@ export class RoomService {
         },
       },
     });
-
+  
     return {
       id: room.id,
       title: room.title,
@@ -91,8 +92,9 @@ export class RoomService {
     });
   }
 
-  async joinRoom(id: string, userId: string) {
-    const roomId = await this.decryptId(id);
+  async joinRoom(token: string, userId: string) {
+
+    const roomId =  await this.decryptId(token)
 
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
@@ -106,7 +108,7 @@ export class RoomService {
     if (room.users.some(user => user.id === userId)) {
       throw new ConflictException('User is already in room');
     }
-
+    
     return this.prisma.room.update({
       where: { id: roomId },
       data: {

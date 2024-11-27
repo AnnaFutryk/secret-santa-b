@@ -5,5 +5,6 @@ import { WishesService } from './wishes.service';
 @Module({
   controllers: [WishesController],
   providers: [WishesService],
+  exports: [WishesService]
 })
 export class WishesModule {}
