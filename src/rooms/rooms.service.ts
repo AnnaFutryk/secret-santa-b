@@ -92,9 +92,7 @@ export class RoomsService {
     });
   }
 
-  async joinRoom(token: string, userId: string) {
-
-    const roomId =  await this.decryptId(token)
+  async joinRoom(roomId: string, userId: string) {
 
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
