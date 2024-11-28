@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io';
-import { WishesService } from "src/wishes/wishes.service";
+import { SocketService } from "./socket.service";
 import { RoomsService } from "./rooms.service";
 
 
@@ -17,7 +17,7 @@ export class RoomsGateway {
   @WebSocketServer() server: Server;
   constructor(
     private readonly roomService: RoomsService,
-    private readonly wishesService: WishesService,
+    private readonly socketService: SocketService,
     private readonly jwt: JwtService
   ) {
    
@@ -77,7 +77,15 @@ async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionTo
   @SubscribeMessage('wish')
   async addWish(@MessageBody() data: { roomId: string, token: string, content: string }) {
     const { roomId, token, content } = data;
-    await this.wishesService.createOrUpdateWish(roomId, { content }, token);
+    await this.socketService.createOrUpdateWish(roomId, { content }, token);
+    const updatedRoom = await this.roomService.getRoomById(roomId);
+    this.server.to(roomId).emit('room-updated', updatedRoom);
+  }
+
+  @SubscribeMessage('address')
+  async addAddress(@MessageBody() data: { roomId: string, token: string, content: string }) {
+    const { roomId, token, content } = data;
+    await this.socketService.createOrUpdateAddress(roomId, { content }, token);
     const updatedRoom = await this.roomService.getRoomById(roomId);
     this.server.to(roomId).emit('room-updated', updatedRoom);
   }

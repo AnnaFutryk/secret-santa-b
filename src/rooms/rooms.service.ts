@@ -35,11 +35,17 @@ export class RoomsService {
         users: {
           include: {
             wishes: {
-              where: { roomId: roomId },
+              where: { roomId },
               select: {
                 content: true,
               },
             },
+            Address: {
+              where: {roomId},
+              select: {
+                content: true
+              }
+            } 
           },
         },
       },
@@ -57,6 +63,10 @@ export class RoomsService {
         wishes: user.wishes.map(wish => ({
           content: wish.content,
         })),
+        addresses: user.Address.map(address => ({
+          content: address.content
+        }))
+      
       })),
     };
   }
