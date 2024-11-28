@@ -40,36 +40,27 @@ connectToRoom(@MessageBody() roomId: string, @ConnectedSocket() socket: Socket) 
 
   @SubscribeMessage('join-room')
 async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionToken: string}, @ConnectedSocket() socket: Socket) {
-  
+  const decodedRoomId = this.jwt.verify(room)
+  const roomId = decodedRoomId.roomId
+
+  console.log(roomId)
+  socket.join(roomId)
+  const decodedUserId = this.jwt.verify(sessionToken)
+  const userId = decodedUserId.id
+  let updatedRoom
   try {
-    const decodedRoomId = this.jwt.verify(room)
-    const roomId = decodedRoomId.roomId
-
-    console.log(roomId)
-    socket.join(roomId)
-    const decodedUserId = this.jwt.verify(sessionToken)
-    const userId = decodedUserId.id
-
-    try {
       await this.roomService.joinRoom(roomId,userId)
-      const updatedRoom = await this.roomService.getRoomById(roomId)
+      updatedRoom = await this.roomService.getRoomById(roomId)
       console.log('Room updated:', updatedRoom)
-  
-      this.server.to(socket.id).emit('room-joined', { success: true, roomId })
-  
-     this.server.emit('room-updated', updatedRoom); 
-  
-    } catch (error) {
- this.server.to(socket.id).emit('room-joined', { success: false, message: 'Failed to join room' })
-
-    }
-
-   
   } catch (error) {
     console.error('Error joining room:', error)
-
     this.server.to(socket.id).emit('room-joined', { success: false, message: 'Failed to join room' })
   }
+
+  this.server.to(socket.id).emit('room-joined', { success: true, roomId })
+  
+  this.server.emit('room-updated', updatedRoom); 
+
 }
 
 
