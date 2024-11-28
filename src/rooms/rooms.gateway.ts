@@ -34,7 +34,7 @@ export class RoomsGateway {
 connectToRoom(@MessageBody() roomId: string, @ConnectedSocket() socket: Socket) {
   socket.join(roomId);
   socket.emit("room", roomId)
-  console.log('Користувач підключений до кімнати: ' + roomId);
+ 
 }
 
 
@@ -43,7 +43,6 @@ async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionTo
   const decodedRoomId = this.jwt.verify(room)
   const roomId = decodedRoomId.roomId
 
-  console.log(roomId)
   socket.join(roomId)
   const decodedUserId = this.jwt.verify(sessionToken)
   const userId = decodedUserId.id
@@ -53,8 +52,8 @@ async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionTo
       updatedRoom = await this.roomService.getRoomById(roomId)
       console.log('Room updated:', updatedRoom)
   } catch (error) {
-    console.error('Error joining room:', error)
     this.server.to(socket.id).emit('room-joined', { success: false, message: 'Failed to join room' })
+    return
   }
 
   this.server.to(socket.id).emit('room-joined', { success: true, roomId })
