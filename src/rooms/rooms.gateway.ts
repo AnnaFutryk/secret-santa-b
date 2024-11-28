@@ -57,7 +57,7 @@ async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionTo
   
       this.server.to(socket.id).emit('room-joined', { success: true, roomId })
   
-     this.server.emit('user-joined', updatedRoom); 
+     this.server.emit('room-updated', updatedRoom); 
   
     } catch (error) {
  this.server.to(socket.id).emit('room-joined', { success: false, message: 'Failed to join room' })
@@ -74,17 +74,11 @@ async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionTo
 
 
 
-  // @SubscribeMessage('add-wish')
-  // async addWish(@MessageBody() data: { roomId: string, token: string, content: string }) {
-  //   const { roomId, token, content } = data;
-
-  //   // Створення або оновлення бажання
-  //   await this.wishesService.createOrUpdateWish(roomId, { content }, token);
-
-  //   // Отримуємо актуальну інформацію про кімнату після зміни побажання
-  //   const updatedRoom = await this.roomService.getRoomById(roomId);
-
-  //   // Повідомлення всім користувачам цієї кімнати про оновлення бажання
-  //   this.server.to(roomId).emit('wish-updated', updatedRoom);
-  // }
+  @SubscribeMessage('wish')
+  async addWish(@MessageBody() data: { roomId: string, token: string, content: string }) {
+    const { roomId, token, content } = data;
+    await this.wishesService.createOrUpdateWish(roomId, { content }, token);
+    const updatedRoom = await this.roomService.getRoomById(roomId);
+    this.server.to(roomId).emit('room-updated', updatedRoom);
+  }
 }
