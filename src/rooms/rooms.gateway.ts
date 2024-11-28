@@ -15,13 +15,12 @@ import { RoomsService } from "./rooms.service";
 @Injectable()
 export class RoomsGateway {
   @WebSocketServer() server: Server;
-  socketRoomMap: Map<string, Set<string>>
   constructor(
     private readonly roomService: RoomsService,
     private readonly wishesService: WishesService,
     private readonly jwt: JwtService
   ) {
-   this.socketRoomMap = new Map<string, Set<string>>(); 
+   
   }
 
   @SubscribeMessage('connected')
@@ -31,24 +30,12 @@ export class RoomsGateway {
     )
   }
 
- // Відстежуємо ID сокета -> набір ID кімнат
-
 @SubscribeMessage('connect-room')
 connectToRoom(@MessageBody() roomId: string, @ConnectedSocket() socket: Socket) {
-  // Підключаємо сокет до кімнати
   socket.join(roomId);
-
-  // Відстежуємо, що сокет приєднався до кімнати
-  if (!this.socketRoomMap.has(socket.id)) {
-    this.socketRoomMap.set(socket.id, new Set());
-  }
-  this.socketRoomMap.get(socket.id)?.add(roomId);
-
   socket.emit("room", roomId)
-  console.log(this.socketRoomMap)
   console.log('Користувач підключений до кімнати: ' + roomId);
 }
-
 
 
   @SubscribeMessage('join-room')

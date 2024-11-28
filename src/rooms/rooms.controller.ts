@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Req
@@ -20,6 +21,21 @@ import { RoomsService } from './rooms.service';
 export class RoomsController {
   constructor(private readonly roomService: RoomsService,  private readonly roomsGateway: RoomsGateway) {}
 
+
+  @ApiOperation({ summary: 'Get a specific room by ID' })
+  @ApiResponse({ status: 200, description: 'Room found successfully.' })
+  @ApiResponse({ status: 404, description: 'Room not found.' })
+  @Auth()
+  @Get(':roomId')
+  async getRoomById(@Param('roomId') roomId: string) {
+    const room = await this.roomService.getRoomById(roomId);
+    if (!room) {
+      throw new NotFoundException('Room with the specified ID not found.');
+    }
+    return room;
+  }
+
+  
   @ApiOperation({ summary: 'Get rooms I am a member of' })
   @ApiResponse({ status: 200, description: 'List of rooms retrieved successfully.' })
   @ApiResponse({
