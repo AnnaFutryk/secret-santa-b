@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateRoomDto {
   @ApiProperty({
@@ -16,6 +16,7 @@ export class CreateRoomDto {
     minimum: 0,
   })
   @IsNumber()
+  @IsOptional()
   @Min(0)
   limit: number;
 }

@@ -67,16 +67,26 @@ async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionTo
   @SubscribeMessage('wish')
   async addWish(@MessageBody() data: { roomId: string, token: string, content: string }) {
     const { roomId, token, content } = data;
-    await this.socketService.createOrUpdateWish(roomId, { content }, token);
+    try {
+      await this.socketService.createOrUpdateWish(roomId, { content }, token);
     const updatedRoom = await this.roomService.getRoomById(roomId);
     this.server.to(roomId).emit('room-updated', updatedRoom);
+    } catch (error) {
+      this.server.emit("room-not-updated", error)
+    }
+    
   }
 
   @SubscribeMessage('address')
   async addAddress(@MessageBody() data: { roomId: string, token: string, content: string }) {
     const { roomId, token, content } = data;
-    await this.socketService.createOrUpdateAddress(roomId, { content }, token);
-    const updatedRoom = await this.roomService.getRoomById(roomId);
-    this.server.to(roomId).emit('room-updated', updatedRoom);
+    try {
+      await this.socketService.createOrUpdateAddress(roomId, { content }, token);
+      const updatedRoom = await this.roomService.getRoomById(roomId);
+      this.server.to(roomId).emit('room-updated', updatedRoom);
+    } catch (error) {
+      this.server.emit("room-not-updated", error)
+    }
+   
   }
 }
