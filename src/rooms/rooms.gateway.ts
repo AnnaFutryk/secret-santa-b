@@ -83,7 +83,7 @@ export class RoomsGateway {
       this.server.to(roomId).emit('user-updated', updatedRoom);
       this.server.to(socket.id).emit('user-updated-message');
     } catch (error) {
-      this.server.to(socket.id).emit('room-not-updated', error);
+      this.server.to(socket.id).emit('not-updated', error);
     }
   }
 
@@ -103,7 +103,7 @@ export class RoomsGateway {
       this.server.to(roomId).emit('user-updated', updatedRoom);
       this.server.to(socket.id).emit('user-updated-message');
     } catch (error) {
-      this.server.to(socket.id).emit('room-not-updated', error);
+      this.server.to(socket.id).emit('not-updated', error);
     }
   }
 
@@ -122,7 +122,26 @@ export class RoomsGateway {
       this.server.to(roomId).emit('user-updated', updatedRoom);
       this.server.to(socket.id).emit('user-updated-message');
     } catch (error) {
-      this.server.to(socket.id).emit('status-not-updated', error);
+      this.server.to(socket.id).emit('not-updated', error);
+    }
+  }
+
+  @SubscribeMessage('change-limit')
+  async changeLimit(
+    @MessageBody() data: { roomId: string; userId: string, limit: number },
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const { roomId, userId, limit} = data;
+
+    try {
+      await this.socketService.changeLimit(roomId, userId, limit);
+
+      const updatedRoom = await this.roomService.getRoomById(roomId);
+
+      this.server.to(roomId).emit('user-updated', updatedRoom);
+      this.server.to(socket.id).emit('user-updated-message');
+    } catch (error) {
+      this.server.to(socket.id).emit('not-updated', error);
     }
   }
 }
