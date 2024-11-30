@@ -6,7 +6,7 @@ import {
   NotFoundException,
   Param,
   Post,
-  Req
+  Req,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'libs/entities/decorators';
@@ -19,8 +19,10 @@ import { RoomsService } from './rooms.service';
 @ApiTags('Room endpoints')
 @Controller('rooms')
 export class RoomsController {
-  constructor(private readonly roomService: RoomsService,  private readonly roomsGateway: RoomsGateway) {}
-
+  constructor(
+    private readonly roomService: RoomsService,
+    private readonly roomsGateway: RoomsGateway,
+  ) {}
 
   @ApiOperation({ summary: 'Get a specific room by ID' })
   @ApiResponse({ status: 200, description: 'Room found successfully.' })
@@ -35,9 +37,11 @@ export class RoomsController {
     return room;
   }
 
-  
   @ApiOperation({ summary: 'Get rooms I am a member of' })
-  @ApiResponse({ status: 200, description: 'List of rooms retrieved successfully.' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of rooms retrieved successfully.',
+  })
   @ApiResponse({
     status: 404,
     description: 'Rooms not found for the user.',
@@ -47,7 +51,6 @@ export class RoomsController {
   async getUserRooms(@Req() req: UserRequest) {
     return this.roomService.getUserRooms(req.user);
   }
-
 
   @ApiOperation({ summary: 'Create a room' })
   @ApiResponse({ status: 201, description: 'Room created successfully.' })

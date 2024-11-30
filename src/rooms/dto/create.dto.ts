@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreateRoomDto {
   @ApiProperty({
@@ -21,5 +28,5 @@ export class CreateRoomDto {
   limit: number;
 
   @IsBoolean()
-  randomizer: boolean
+  randomizer: boolean;
 }

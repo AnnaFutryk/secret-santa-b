@@ -1,20 +1,27 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { PrismaService } from "libs/common";
-import { UserEventDto } from "./dto/user-event.dto";
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from 'libs/common';
+import { UserEventDto } from './dto/user-event.dto';
 
 @Injectable()
 export class SocketService {
-  constructor(private readonly prismaService: PrismaService, private readonly jwt: JwtService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly jwt: JwtService,
+  ) {}
 
-  async createOrUpdateWish(roomId: string, userUserEventDto: UserEventDto, token: string) {
-    const decodedToken = this.jwt.verify(token); 
-    const userId = decodedToken.id as string; 
+  async createOrUpdateWish(
+    roomId: string,
+    userUserEventDto: UserEventDto,
+    token: string,
+  ) {
+    const decodedToken = this.jwt.verify(token);
+    const userId = decodedToken.id as string;
     const roomExists = await this.prismaService.room.findUnique({
       where: { id: roomId },
     });
     if (!roomExists) {
-      throw new NotFoundException("Room тot found");
+      throw new NotFoundException('Room тot found');
     }
 
     const existingWish = await this.prismaService.wish.findUnique({
@@ -46,14 +53,18 @@ export class SocketService {
     });
   }
 
-  async createOrUpdateAddress(roomId: string, userUserEventDto: UserEventDto, token: string) {
-    const decodedToken = this.jwt.verify(token); 
-    const userId = decodedToken.id; 
+  async createOrUpdateAddress(
+    roomId: string,
+    userUserEventDto: UserEventDto,
+    token: string,
+  ) {
+    const decodedToken = this.jwt.verify(token);
+    const userId = decodedToken.id;
     const roomExists = await this.prismaService.room.findUnique({
       where: { id: roomId },
     });
     if (!roomExists) {
-      throw new NotFoundException("Room тot found");
+      throw new NotFoundException('Room тot found');
     }
 
     const existingAddress = await this.prismaService.address.findUnique({
@@ -83,5 +94,47 @@ export class SocketService {
         roomId: roomId,
       },
     });
+  }
+
+  async checkStatus(roomId: string, userId: string) {
+    const roomExists = await this.prismaService.room.findUnique({
+      where: { id: roomId },
+    });
+
+    if (!roomExists) {
+      throw new NotFoundException('Room not found');
+    }
+
+    const userStatus = await this.prismaService.status.findUnique({
+      where: {
+        userId_roomId: {
+          userId,
+          roomId,
+        },
+      },
+      select: { status: true },
+    });
+    console.log(userStatus);
+    if (!userStatus) {
+      throw new NotFoundException('User status not found');
+    }
+
+    if (userStatus.status) {
+      return { message: 'User status is already true' };
+    }
+
+    const updated = await this.prismaService.status.update({
+      where: {
+        userId_roomId: {
+          userId,
+          roomId,
+        },
+      },
+      data: {
+        status: true,
+      },
+    });
+
+    return updated;
   }
 }

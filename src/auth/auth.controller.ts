@@ -83,7 +83,4 @@ export class AuthController {
   async signIn(@Body() data: SignInDto): Promise<AuthResponse> {
     return await this.authService.signIn(data);
   }
-
-
-  
 }

@@ -13,7 +13,6 @@ export class RoomsService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly jwt: JwtService,
- 
   ) {}
 
   async getUserRooms(userId: string) {
@@ -41,23 +40,22 @@ export class RoomsService {
               },
             },
             address: {
-              where: {roomId},
+              where: { roomId },
               select: {
-                content: true
-              }
-            }, 
+                content: true,
+              },
+            },
             status: {
-              where: {roomId},
+              where: { roomId },
               select: {
-                status: true
-              }
-            }
-            
+                status: true,
+              },
+            },
           },
         },
       },
     });
-  
+
     return {
       id: room.id,
       title: room.title,
@@ -65,20 +63,19 @@ export class RoomsService {
       limit: room.limit,
       randomizer: room.randomizer,
       url: room.url,
-      users: room.users.map(user => ({
+      users: room.users.map((user) => ({
         id: user.id,
         name: user.name,
         email: user.email,
-        wishes: user.wishes.map(wish => ({
+        wishes: user.wishes.map((wish) => ({
           content: wish.content,
         })),
-        addresses: user.address.map(address => ({
-          content: address.content
+        addresses: user.address.map((address) => ({
+          content: address.content,
         })),
-        statusses: user.status.map(status => ({
-          status: status.status
-        }))
-      
+        statusses: user.status.map((status) => ({
+          status: status.status,
+        })),
       })),
     };
   }
@@ -86,13 +83,15 @@ export class RoomsService {
   async createRoom({ data, id }: { data: CreateRoomDto; id: string }) {
     const existingRoomWithCurrentTitle = await this.prisma.room.findFirst({
       where: {
-        owner: id, 
+        owner: id,
         title: data.title,
       },
     });
 
     if (existingRoomWithCurrentTitle) {
-      throw new ConflictException("The room with that title already created, choose another title")
+      throw new ConflictException(
+        'The room with that title already created, choose another title',
+      );
     }
 
     const room = await this.prisma.room.create({
@@ -103,7 +102,7 @@ export class RoomsService {
         users: {
           connect: { id },
         },
-        randomizer: data.randomizer
+        randomizer: data.randomizer,
       },
     });
 
@@ -111,10 +110,9 @@ export class RoomsService {
       data: {
         userId: id,
         roomId: room.id,
-        status: false, 
+        status: false,
       },
     });
-  
 
     const url = await this.encryptLink(room.id);
 
@@ -129,7 +127,7 @@ export class RoomsService {
       where: { id: roomId },
       include: { users: true },
     });
-  
+
     if (!room) {
       throw new NotFoundException('Room not found');
     }
@@ -140,11 +138,11 @@ export class RoomsService {
         rooms: { some: { id: roomId } },
       },
     });
-  
+
     if (existingUser) {
       throw new ConflictException('User is already in room');
     }
-  
+
     const updatedRoom = await this.prisma.room.update({
       where: { id: roomId },
       data: {
@@ -153,7 +151,7 @@ export class RoomsService {
         },
       },
     });
-  
+
     await this.prisma.status.create({
       data: {
         status: false,
@@ -161,14 +159,13 @@ export class RoomsService {
         roomId: roomId,
       },
     });
-  
+
     return updatedRoom;
   }
-  
 
   async deleteRoom(id: string) {
     const room = await this.prisma.room.findUnique({ where: { id } });
-  
+
     if (!room) {
       throw new NotFoundException('Room not found');
     }
@@ -176,10 +173,9 @@ export class RoomsService {
     await this.prisma.wish.deleteMany({
       where: { roomId: id },
     });
-  
+
     return this.prisma.room.delete({ where: { id } });
   }
-  
 
   private async encryptLink(roomId: string): Promise<string> {
     const frontendLink = this.config.get('FRONT_END_URL');
