@@ -14,18 +14,21 @@ model User {
   password String
   wishes   Wish[]
   rooms    Room[]    @relation("UserRooms")
-  Address  Address[]
+  status   Status[]
+  address  Address[]
 }
 
 model Room {
-  id        String    @id @default(uuid())
-  title     String
-  owner     String    @db.Uuid
-  users     User[]    @relation("UserRooms")
-  wishes    Wish[]
-  addresses Address[]
-  limit     Int?
-  url       String?
+  id         String    @id @default(uuid())
+  title      String
+  randomizer Boolean
+  owner      String    @db.Uuid
+  users      User[]    @relation("UserRooms")
+  wishes     Wish[]
+  addresses  Address[]
+  statusess  Status[]
+  limit      Int?
+  url        String?
 }
 
 model Wish {
@@ -46,6 +49,17 @@ model Address {
   user    User   @relation(fields: [userId], references: [id])
   roomId  String
   room    Room   @relation(fields: [roomId], references: [id])
+
+  @@unique([userId, roomId])
+}
+
+model Status {
+  id     String  @id @default(uuid())
+  status Boolean @default(false)
+  userId String
+  user   User    @relation(fields: [userId], references: [id])
+  roomId String
+  room   Room    @relation(fields: [roomId], references: [id])
 
   @@unique([userId, roomId])
 }

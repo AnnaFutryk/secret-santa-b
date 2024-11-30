@@ -9,7 +9,7 @@ export class SocketService {
 
   async createOrUpdateWish(roomId: string, userUserEventDto: UserEventDto, token: string) {
     const decodedToken = this.jwt.verify(token); 
-    const userId = decodedToken.id; 
+    const userId = decodedToken.id as string; 
     const roomExists = await this.prismaService.room.findUnique({
       where: { id: roomId },
     });

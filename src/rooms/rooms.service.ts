@@ -40,12 +40,19 @@ export class RoomsService {
                 content: true,
               },
             },
-            Address: {
+            address: {
               where: {roomId},
               select: {
                 content: true
               }
-            } 
+            }, 
+            status: {
+              where: {roomId},
+              select: {
+                status: true
+              }
+            }
+            
           },
         },
       },
@@ -56,15 +63,20 @@ export class RoomsService {
       title: room.title,
       owner: room.owner,
       limit: room.limit,
+      randomizer: room.randomizer,
       url: room.url,
       users: room.users.map(user => ({
+        id: user.id,
         name: user.name,
         email: user.email,
         wishes: user.wishes.map(wish => ({
           content: wish.content,
         })),
-        addresses: user.Address.map(address => ({
+        addresses: user.address.map(address => ({
           content: address.content
+        })),
+        statusses: user.status.map(status => ({
+          status: status.status
         }))
       
       })),
@@ -91,8 +103,18 @@ export class RoomsService {
         users: {
           connect: { id },
         },
+        randomizer: data.randomizer
       },
     });
+
+    await this.prisma.status.create({
+      data: {
+        userId: id,
+        roomId: room.id,
+        status: false, 
+      },
+    });
+  
 
     const url = await this.encryptLink(room.id);
 
@@ -103,21 +125,27 @@ export class RoomsService {
   }
 
   async joinRoom(roomId: string, userId: string) {
-
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
       include: { users: true },
     });
-
+  
     if (!room) {
       throw new NotFoundException('Room not found');
     }
 
-    if (room.users.some(user => user.id === userId)) {
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        rooms: { some: { id: roomId } },
+      },
+    });
+  
+    if (existingUser) {
       throw new ConflictException('User is already in room');
     }
-    
-    return this.prisma.room.update({
+  
+    const updatedRoom = await this.prisma.room.update({
       where: { id: roomId },
       data: {
         users: {
@@ -125,7 +153,18 @@ export class RoomsService {
         },
       },
     });
+  
+    await this.prisma.status.create({
+      data: {
+        status: false,
+        userId: userId,
+        roomId: roomId,
+      },
+    });
+  
+    return updatedRoom;
   }
+  
 
   async deleteRoom(id: string) {
     const room = await this.prisma.room.findUnique({ where: { id } });

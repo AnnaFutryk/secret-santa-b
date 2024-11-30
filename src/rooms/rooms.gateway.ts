@@ -33,7 +33,7 @@ export class RoomsGateway {
 @SubscribeMessage('connect-room')
 connectToRoom(@MessageBody() roomId: string, @ConnectedSocket() socket: Socket) {
   socket.join(roomId);
-  socket.emit("room", roomId)
+ 
  
 }
 
@@ -58,34 +58,36 @@ async handleJoinRoom(@MessageBody() {room, sessionToken}:{room:string, sessionTo
 
   this.server.to(socket.id).emit('room-joined', { success: true, roomId })
   
-  this.server.emit('room-updated', updatedRoom); 
+  this.server.to(roomId).emit('room-updated', updatedRoom); 
 
 }
 
 
 
   @SubscribeMessage('wish')
-  async addWish(@MessageBody() data: { roomId: string, token: string, content: string }) {
+  async addWish(@MessageBody() data: { roomId: string, token: string, content: string }, @ConnectedSocket() socket: Socket) {
     const { roomId, token, content } = data;
     try {
       await this.socketService.createOrUpdateWish(roomId, { content }, token);
     const updatedRoom = await this.roomService.getRoomById(roomId);
-    this.server.to(roomId).emit('room-updated', updatedRoom);
+    this.server.to(roomId).emit('user-updated', updatedRoom);
+    this.server.to(socket.id).emit('user-updated-message');
     } catch (error) {
-      this.server.emit("room-not-updated", error)
+      this.server.to(socket.id).emit("room-not-updated", error)
     }
     
   }
 
   @SubscribeMessage('address')
-  async addAddress(@MessageBody() data: { roomId: string, token: string, content: string }) {
+  async addAddress(@MessageBody() data: { roomId: string, token: string, content: string }, @ConnectedSocket() socket: Socket) {
     const { roomId, token, content } = data;
     try {
       await this.socketService.createOrUpdateAddress(roomId, { content }, token);
       const updatedRoom = await this.roomService.getRoomById(roomId);
-      this.server.to(roomId).emit('room-updated', updatedRoom);
+      this.server.to(roomId).emit('user-updated', updatedRoom);
+      this.server.to(socket.id).emit('user-updated-message');
     } catch (error) {
-      this.server.emit("room-not-updated", error)
+      this.server.to(socket.id).emit("room-not-updated", error)
     }
    
   }
