@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'libs/common';
 import { UserEventDto } from './dto/user-event.dto';
@@ -139,11 +143,9 @@ export class SocketService {
   }
 
   async changeLimit(roomId: string, userId: string, limit: number) {
-  
     const roomExists = await this.prismaService.room.findUnique({
       where: { id: roomId },
     });
-  
 
     if (!roomExists) {
       throw new NotFoundException('Room not found');
@@ -152,17 +154,16 @@ export class SocketService {
     if (roomExists.owner !== userId) {
       throw new ForbiddenException('You are not the owner of this room');
     }
- 
+
     const updated = await this.prismaService.room.update({
       where: {
-        id: roomId, 
+        id: roomId,
       },
       data: {
-        limit: limit, 
+        limit: limit,
       },
     });
-  
+
     return updated;
   }
-  
 }

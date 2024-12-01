@@ -57,12 +57,10 @@ export class RoomsGateway {
       updatedRoom = await this.roomService.getRoomById(roomId);
       console.log('Room updated:', updatedRoom);
     } catch (error) {
-      this.server
-        .to(socket.id)
-        .emit('room-joined', {
-          success: false,
-          message: 'Failed to join room',
-        });
+      this.server.to(socket.id).emit('room-joined', {
+        success: false,
+        message: 'Failed to join room',
+      });
       return;
     }
 
@@ -128,20 +126,33 @@ export class RoomsGateway {
 
   @SubscribeMessage('change-limit')
   async changeLimit(
-    @MessageBody() data: { roomId: string; userId: string, limit: number },
+    @MessageBody() data: { roomId: string; userId: string; limit: number },
     @ConnectedSocket() socket: Socket,
   ) {
-    const { roomId, userId, limit} = data;
+    const { roomId, userId, limit } = data;
 
     try {
       await this.socketService.changeLimit(roomId, userId, limit);
 
       const updatedRoom = await this.roomService.getRoomById(roomId);
 
-      this.server.to(roomId).emit('user-updated', updatedRoom);
+      this.server.to(roomId).emit('room-updated', updatedRoom);
       this.server.to(socket.id).emit('user-updated-message');
     } catch (error) {
+      console.log(error);
       this.server.to(socket.id).emit('not-updated', error);
     }
+  }
+
+  @SubscribeMessage('leave-room')
+  async leaveRoom(@MessageBody() { roomId }: { roomId: string }) {
+    const updatedRoom = await this.roomService.getRoomById(roomId);
+
+    this.server.to(roomId).emit('room-updated', updatedRoom);
+  }
+
+  @SubscribeMessage('delete-room')
+  async deletedRoom(@MessageBody() { roomId }: { roomId: string }) {
+    this.server.to(roomId).emit('room-deleted');
   }
 }

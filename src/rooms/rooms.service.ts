@@ -174,21 +174,65 @@ export class RoomsService {
       where: { roomId: id },
     });
 
+    await this.prisma.address.deleteMany({
+      where: { roomId: id },
+    });
+
+    await this.prisma.status.deleteMany({
+      where: { roomId: id },
+    });
+
     return this.prisma.room.delete({ where: { id } });
+  }
+
+  async leaveRoom(roomId: string, userId: string) {
+    const room = await this.prisma.room.findUnique({
+      where: { id: roomId },
+      include: { users: true },
+    });
+
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
+
+    const userInRoom = room.users.find((user) => user.id === userId);
+
+    if (!userInRoom) {
+      throw new ConflictException('User is not in this room');
+    }
+
+    await this.prisma.room.update({
+      where: { id: roomId },
+      data: {
+        users: {
+          disconnect: { id: userId },
+        },
+      },
+    });
+
+    await this.prisma.status.deleteMany({
+      where: { roomId: roomId, userId: userId },
+    });
+
+    await this.prisma.wish.deleteMany({
+      where: { roomId: roomId, userId: userId },
+    });
+
+    await this.prisma.address.deleteMany({
+      where: { roomId: roomId, userId: userId },
+    });
+
+    return {
+      message:
+        'User successfully left the room and all associated data is deleted',
+      roomId,
+      userId,
+    };
   }
 
   private async encryptLink(roomId: string): Promise<string> {
     const frontendLink = this.config.get('FRONT_END_URL');
     const hashedRoomId = await this.jwt.signAsync({ roomId });
     return `${frontendLink}?join=${hashedRoomId}`;
-  }
-
-  private async decryptId(hashedId: string): Promise<string> {
-    const decoded = this.jwt.decode(hashedId);
-    if (typeof decoded === 'object' && decoded?.roomId) {
-      return decoded.roomId;
-    } else {
-      throw new Error('Invalid or expired token');
-    }
   }
 }
