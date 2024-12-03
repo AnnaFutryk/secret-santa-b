@@ -107,13 +107,13 @@ export class RoomsGateway {
 
   @SubscribeMessage('checked-status')
   async checkedStatus(
-    @MessageBody() data: { roomId: string; userId: string },
+    @MessageBody() data: { roomId: string; user:string; userId: string },
     @ConnectedSocket() socket: Socket,
   ) {
-    const { roomId, userId } = data;
+    const { roomId, userId, user } = data;
 
     try {
-      await this.socketService.checkStatus(roomId, userId);
+      await this.socketService.checkStatus(roomId, user, userId);
 
       const updatedRoom = await this.roomService.getRoomById(roomId);
 

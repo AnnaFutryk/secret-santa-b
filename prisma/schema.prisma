@@ -8,25 +8,27 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(uuid())
+  id       String      @id @default(uuid())
   name     String
-  email    String    @unique
+  email    String      @unique
   password String
   wishes   Wish[]
-  rooms    Room[]    @relation("UserRooms")
+  rooms    Room[]      @relation("UserRooms")
   status   Status[]
   address  Address[]
+  choosed  IsChoosed[]
 }
 
 model Room {
-  id         String    @id @default(uuid())
+  id         String      @id @default(uuid())
   title      String
   randomizer Boolean
-  owner      String    @db.Uuid
-  users      User[]    @relation("UserRooms")
+  owner      String      @db.Uuid
+  users      User[]      @relation("UserRooms")
   wishes     Wish[]
   addresses  Address[]
   statusess  Status[]
+  chosed     IsChoosed[]
   limit      Int?
   url        String?
 }
@@ -60,6 +62,17 @@ model Status {
   user   User    @relation(fields: [userId], references: [id])
   roomId String
   room   Room    @relation(fields: [roomId], references: [id])
+
+  @@unique([userId, roomId])
+}
+
+model IsChoosed {
+  id      String  @id @default(uuid())
+  choosed Boolean @default(false)
+  userId  String
+  user    User    @relation(fields: [userId], references: [id])
+  roomId  String
+  room    Room    @relation(fields: [roomId], references: [id])
 
   @@unique([userId, roomId])
 }

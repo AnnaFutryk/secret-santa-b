@@ -29,35 +29,41 @@ export class AuthService {
   }
 
   async signUp(data: SignUpDto): Promise<AuthResponse> {
-    const isUserExists = await this.prismaService.user.findUnique({
-      where: { email: data.email },
-    });
-
-    if (isUserExists) {
-      throw new ConflictException(
-        'The User is Already Been Registered, Please Sign-In',
-      );
+    console.log(data)
+    try {
+      const isUserExists = await this.prismaService.user.findUnique({
+        where: { email: data.email },
+      });
+  
+      if (isUserExists) {
+        throw new ConflictException(
+          'The User is Already Been Registered, Please Sign-In',
+        );
+      }
+  
+      const hashedPassword = await hash(data.password, 10);
+  
+      const newUser = await this.prismaService.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          password: hashedPassword,
+        },
+      });
+  
+      const tokens = this.generateSessionToken(newUser.id);
+      const userWithoutPassword = omitPassword(newUser);
+  
+      return {
+        user: {
+          ...userWithoutPassword,
+        },
+        ...tokens,
+      };
+    } catch (error) {
+      console.log(error)
     }
-
-    const hashedPassword = await hash(data.password, 10);
-
-    const newUser = await this.prismaService.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-      },
-    });
-
-    const tokens = this.generateSessionToken(newUser.id);
-    const userWithoutPassword = omitPassword(newUser);
-
-    return {
-      user: {
-        ...userWithoutPassword,
-      },
-      ...tokens,
-    };
+   
   }
 
   async signIn(data: SignInDto): Promise<AuthResponse> {

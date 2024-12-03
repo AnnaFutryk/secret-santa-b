@@ -100,7 +100,7 @@ export class SocketService {
     });
   }
 
-  async checkStatus(roomId: string, userId: string) {
+  async checkStatus(roomId: string,user:string, userId: string) {
     const roomExists = await this.prismaService.room.findUnique({
       where: { id: roomId },
     });
@@ -118,7 +118,7 @@ export class SocketService {
       },
       select: { status: true },
     });
-    console.log(userStatus);
+ 
     if (!userStatus) {
       throw new NotFoundException('User status not found');
     }
@@ -138,6 +138,25 @@ export class SocketService {
         status: true,
       },
     });
+try {
+  await this.prismaService.isChoosed.update({
+    where: {
+      userId_roomId: {
+        userId: user,
+        roomId
+      }
+    },
+    data: {
+      choosed: true
+    }
+  })
+
+} catch (error) {
+  
+  console.log(error)
+  return
+}
+   
 
     return updated;
   }
