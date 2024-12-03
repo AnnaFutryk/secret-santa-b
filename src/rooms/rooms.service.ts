@@ -208,6 +208,9 @@ export class RoomsService {
     await this.prisma.status.deleteMany({
       where: { roomId: id },
     });
+    await this.prisma.isChoosed.deleteMany({
+      where: { roomId: id },
+    });
 
     return this.prisma.room.delete({ where: { id } });
   }
