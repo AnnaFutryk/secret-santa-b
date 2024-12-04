@@ -52,11 +52,11 @@ export class RoomsService {
               },
             },
             choosed: {
-              where: {roomId},
+              where: { roomId },
               select: {
-                choosed: true
-              }
-            }
+                choosed: true,
+              },
+            },
           },
         },
       },
@@ -83,7 +83,7 @@ export class RoomsService {
           status: status.status,
         })),
         choosed: user.choosed.map((chose) => ({
-          choosed: chose.choosed
+          choosed: chose.choosed,
         })),
       })),
     };
@@ -127,7 +127,7 @@ export class RoomsService {
       data: {
         userId: id,
         roomId: room.id,
-        choosed: false
+        choosed: false,
       },
     });
 
@@ -177,15 +177,13 @@ export class RoomsService {
       },
     });
 
-
     await this.prisma.isChoosed.create({
       data: {
         userId,
         roomId: room.id,
-        choosed: false
+        choosed: false,
       },
     });
-
 
     return updatedRoom;
   }

@@ -29,20 +29,20 @@ export class AuthService {
   }
 
   async signUp(data: SignUpDto): Promise<AuthResponse> {
-    console.log(data)
+    console.log(data);
     try {
       const isUserExists = await this.prismaService.user.findUnique({
         where: { email: data.email },
       });
-  
+
       if (isUserExists) {
         throw new ConflictException(
           'The User is Already Been Registered, Please Sign-In',
         );
       }
-  
+
       const hashedPassword = await hash(data.password, 10);
-  
+
       const newUser = await this.prismaService.user.create({
         data: {
           name: data.name,
@@ -50,10 +50,10 @@ export class AuthService {
           password: hashedPassword,
         },
       });
-  
+
       const tokens = this.generateSessionToken(newUser.id);
       const userWithoutPassword = omitPassword(newUser);
-  
+
       return {
         user: {
           ...userWithoutPassword,
@@ -61,9 +61,8 @@ export class AuthService {
         ...tokens,
       };
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-   
   }
 
   async signIn(data: SignInDto): Promise<AuthResponse> {

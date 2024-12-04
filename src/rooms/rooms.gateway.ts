@@ -107,7 +107,7 @@ export class RoomsGateway {
 
   @SubscribeMessage('checked-status')
   async checkedStatus(
-    @MessageBody() data: { roomId: string; user:string; userId: string },
+    @MessageBody() data: { roomId: string; user: string; userId: string },
     @ConnectedSocket() socket: Socket,
   ) {
     const { roomId, userId, user } = data;

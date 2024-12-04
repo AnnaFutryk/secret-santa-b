@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Таємний Санта</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #c00000;
+      font-size: 24px;
+      font-weight: 500;
+    }
+    .highlight {
+      font-weight: bold;
+    }
+    p {
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+    .info-container {
+      margin-bottom: 20px;
+    }
+    .info-block {
+      background-color: #ffffff;
+      padding: 15px;
+      border: 1px solid #999999;
+      border-radius: 10px;
+      margin-bottom: 20px;
+
+      
+    }
+    .info-block h2 {
+      color: #c00000;
+      font-size: 18px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .info-block p {
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Привіт, а ось і деталі учасника <span class="highlight">{{name}}</span>!</h1>
+    
+    <div class="info-container">
+     
+      <div class="info-block">
+        <h2>Бажання отримувача</h2>
+        <p>{{wish}}</p>
+      </div>
+
+       <div class="info-block">
+        <h2>Адреса отримувача</h2>
+        <p>{{address}}</p>
+      </div>
+    </div>
+    
+    <p>Щасливого подарунка! 🎁</p>
+  </div>
+</body>
+</html>

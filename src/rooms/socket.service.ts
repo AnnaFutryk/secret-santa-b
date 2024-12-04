@@ -6,12 +6,15 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'libs/common';
 import { UserEventDto } from './dto/user-event.dto';
+import { Queue } from 'bull';
+import { InjectQueue } from '@nestjs/bull';
 
 @Injectable()
 export class SocketService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly jwt: JwtService,
+    @InjectQueue('email-queue') private mailerQueue: Queue,
   ) {}
 
   async createOrUpdateWish(
@@ -100,10 +103,17 @@ export class SocketService {
     });
   }
 
-  async checkStatus(roomId: string,user:string, userId: string) {
+  async checkStatus(roomId: string, user: string, userId: string) {
     const roomExists = await this.prismaService.room.findUnique({
       where: { id: roomId },
     });
+
+    await this.mailerQueue.add('send-email', {
+      roomId,
+      userId,
+      user,
+    });
+  
 
     if (!roomExists) {
       throw new NotFoundException('Room not found');
@@ -118,7 +128,7 @@ export class SocketService {
       },
       select: { status: true },
     });
- 
+
     if (!userStatus) {
       throw new NotFoundException('User status not found');
     }
@@ -138,25 +148,22 @@ export class SocketService {
         status: true,
       },
     });
-try {
-  await this.prismaService.isChoosed.update({
-    where: {
-      userId_roomId: {
-        userId: user,
-        roomId
-      }
-    },
-    data: {
-      choosed: true
+    try {
+      await this.prismaService.isChoosed.update({
+        where: {
+          userId_roomId: {
+            userId: user,
+            roomId,
+          },
+        },
+        data: {
+          choosed: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      return;
     }
-  })
-
-} catch (error) {
-  
-  console.log(error)
-  return
-}
-   
 
     return updated;
   }

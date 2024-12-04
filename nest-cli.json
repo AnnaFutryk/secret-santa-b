@@ -5,6 +5,9 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true
+    
+    
+
   },
   "projects": {
     "common": {
