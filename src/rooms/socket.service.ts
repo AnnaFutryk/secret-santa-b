@@ -108,13 +108,6 @@ export class SocketService {
       where: { id: roomId },
     });
 
-    await this.mailerQueue.add('send-email', {
-      roomId,
-      userId,
-      user,
-    });
-  
-
     if (!roomExists) {
       throw new NotFoundException('Room not found');
     }
@@ -164,6 +157,11 @@ export class SocketService {
       console.log(error);
       return;
     }
+    this.mailerQueue.add('send-email', {
+      roomId,
+      userId,
+      user,
+    });
 
     return updated;
   }
