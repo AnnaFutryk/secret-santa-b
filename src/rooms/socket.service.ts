@@ -130,6 +130,15 @@ export class SocketService {
       return { message: 'User status is already true' };
     }
 
+    this.mailerQueue.add('send-email', {
+      roomId,
+      userId,
+      user,
+    });
+    this.mailerQueue.on('failed', (job, err) => {
+      console.error(`Job failed: ${job.id}`, err);
+    });
+
     const updated = await this.prismaService.status.update({
       where: {
         userId_roomId: {
@@ -157,11 +166,6 @@ export class SocketService {
       console.log(error);
       return;
     }
-    this.mailerQueue.add('send-email', {
-      roomId,
-      userId,
-      user,
-    });
 
     return updated;
   }

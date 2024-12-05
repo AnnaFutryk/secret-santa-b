@@ -81,6 +81,7 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'Authorize User' })
   async signIn(@Body() data: SignInDto): Promise<AuthResponse> {
+    console.log(data);
     return await this.authService.signIn(data);
   }
 }

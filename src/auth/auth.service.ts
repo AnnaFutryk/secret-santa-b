@@ -69,7 +69,8 @@ export class AuthService {
     const user = await this.prismaService.user.findUnique({
       where: { email: data.email },
     });
-
+    console.log(user);
+    console.log(data);
     if (!user) {
       throw new BadRequestException(
         "The Email or Password is Wrong, or User doesn't Exist",
@@ -77,7 +78,7 @@ export class AuthService {
     }
 
     const verifiedPassword = await compare(data.password, user.password);
-
+    console.log(verifiedPassword);
     if (!verifiedPassword) {
       throw new UnauthorizedException(
         "The Email or Password is Wrong, or User doesn't Exist",
