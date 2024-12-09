@@ -260,7 +260,10 @@ export class RoomsService {
 
   private async encryptLink(roomId: string): Promise<string> {
     const frontendLink = this.config.get('FRONT_END_URL');
-    const hashedRoomId = await this.jwt.signAsync({ roomId });
+    const hashedRoomId = await this.jwt.signAsync(
+      { roomId },
+      { expiresIn: '180d' },
+    );
     return `${frontendLink}?join=${hashedRoomId}`;
   }
 }
