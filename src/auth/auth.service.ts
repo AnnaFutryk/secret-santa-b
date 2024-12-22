@@ -24,7 +24,7 @@ export class AuthService {
       sessionToken,
       sessionTokenValidUntil: new Date(
         new Date().setDate(new Date().getDate() + 5),
-      ),
+      ).getTime(),
     };
   }
 

@@ -5,5 +5,5 @@ export class TokenResponse {
   sessionToken: string;
 
   @ApiProperty()
-  sessionTokenValidUntil: Date;
+  sessionTokenValidUntil: number;
 }

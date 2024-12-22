@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { SocketService } from './socket.service';
 import { RoomsService } from './rooms.service';
+import { Room } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
@@ -45,21 +46,28 @@ export class RoomsGateway {
     { room, sessionToken }: { room: string; sessionToken: string },
     @ConnectedSocket() socket: Socket,
   ) {
-    const decodedRoomId = this.jwt.verify(room);
-    const roomId = decodedRoomId.roomId;
+    let roomId: string | null;
+
+    try {
+      const decodedRoomId = this.jwt.verify(room);
+      roomId = decodedRoomId.roomId;
+    } catch {
+      this.server.to(socket.id).emit('room-joined', { success: false });
+      throw new BadRequestException('The Join Token is Invalid');
+    }
 
     socket.join(roomId);
     const decodedUserId = this.jwt.verify(sessionToken);
     const userId = decodedUserId.id;
-    let updatedRoom;
+
+    let updatedRoom: Room;
+
     try {
       await this.roomService.joinRoom(roomId, userId);
       updatedRoom = await this.roomService.getRoomById(roomId);
-      console.log('Room updated:', updatedRoom);
     } catch (error) {
       this.server.to(socket.id).emit('room-joined', {
         success: false,
-        message: 'Failed to join room',
       });
       return;
     }
