@@ -29,51 +29,45 @@ export class AuthService {
   }
 
   async signUp(data: SignUpDto): Promise<AuthResponse> {
-    console.log(data);
-    try {
-      const isUserExists = await this.prismaService.user.findUnique({
-        where: { email: data.email },
-      });
+    const isUserExists = await this.prismaService.user.findUnique({
+      where: { email: data.email },
+    });
 
-      if (isUserExists) {
-        throw new ConflictException(
-          'The User is Already Been Registered, Please Sign-In',
-        );
-      }
-
-      const hashedPassword = await hash(data.password, 10);
-
-      const newUser = await this.prismaService.user.create({
-        data: {
-          name: data.name,
-          email: data.email,
-          password: hashedPassword,
-        },
-      });
-
-      const tokens = this.generateSessionToken(newUser.id);
-      const userWithoutPassword = omitPassword(newUser);
-
-      return {
-        user: {
-          ...userWithoutPassword,
-        },
-        ...tokens,
-      };
-    } catch (error) {
-      console.log(error);
+    if (isUserExists) {
+      throw new ConflictException(
+        'Користувач вже існує, якщо це ви - спробуйте увійти',
+      );
     }
+
+    const hashedPassword = await hash(data.password, 10);
+
+    const newUser = await this.prismaService.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        password: hashedPassword,
+      },
+    });
+
+    const tokens = this.generateSessionToken(newUser.id);
+    const userWithoutPassword = omitPassword(newUser);
+
+    return {
+      user: {
+        ...userWithoutPassword,
+      },
+      ...tokens,
+    };
   }
 
   async signIn(data: SignInDto): Promise<AuthResponse> {
     const user = await this.prismaService.user.findUnique({
       where: { email: data.email },
     });
-    console.log(user);
-    console.log(data);
+
     if (!user) {
       throw new BadRequestException(
-        "The Email or Password is Wrong, or User doesn't Exist",
+        'Пошта або пароль не вірні, спробуйте ще раз!',
       );
     }
 
@@ -81,7 +75,7 @@ export class AuthService {
     console.log(verifiedPassword);
     if (!verifiedPassword) {
       throw new UnauthorizedException(
-        "The Email or Password is Wrong, or User doesn't Exist",
+        'Пошта або пароль не вірні, спробуйте ще раз!',
       );
     }
 

@@ -17,11 +17,11 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Bad request: Validation errors or user already exists.',
+    description: 'Bad request: Validation data errors',
     schema: {
       example: {
         statusCode: 400,
-        message: 'The email provided is already in use.',
+        message: 'Помилка з Body, Перевірьте запит',
         error: 'BadRequest',
       },
     },
@@ -32,7 +32,7 @@ export class AuthController {
     schema: {
       example: {
         statusCode: 409,
-        message: 'The User is Already Been Registered, Please Sign-In',
+        message: 'Користувач вже існує, якщо це ви - спробуйте увійти',
         error: 'Conflict',
       },
     },
@@ -81,7 +81,6 @@ export class AuthController {
   })
   @ApiOperation({ summary: 'Authorize User' })
   async signIn(@Body() data: SignInDto): Promise<AuthResponse> {
-    console.log(data);
     return await this.authService.signIn(data);
   }
 }
