@@ -27,8 +27,8 @@ export class RoomsController {
   @ApiResponse({ status: 404, description: 'Room not found.' })
   @Auth()
   @Get(':roomId')
-  async getRoomById(@Param('roomId') roomId: string) {
-    const room = await this.roomService.getRoomById(roomId);
+  async getRoomById(@Param('roomId') roomId: string, @Req() req: UserRequest) {
+    const room = await this.roomService.getRoomById(roomId, req.user);
     if (!room) {
       throw new NotFoundException('Room with the specified ID not found.');
     }

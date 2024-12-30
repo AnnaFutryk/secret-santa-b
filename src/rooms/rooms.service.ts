@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -27,7 +28,7 @@ export class RoomsService {
     });
   }
 
-  async getRoomById(roomId: string) {
+  async getRoomById(roomId: string, userId: string) {
     const room = await this.prisma.room.findUnique({
       where: { id: roomId },
       include: {
@@ -61,6 +62,14 @@ export class RoomsService {
         },
       },
     });
+
+    const user = room?.users.find((user) => user.id === userId);
+
+    if (!user) {
+      throw new ForbiddenException(
+        `Access Forbidden: User with ID ${userId} exist in this room`,
+      );
+    }
 
     return {
       id: room.id,
@@ -247,6 +256,10 @@ export class RoomsService {
     });
 
     await this.prisma.address.deleteMany({
+      where: { roomId: roomId, userId: userId },
+    });
+
+    await this.prisma.isChoosed.deleteMany({
       where: { roomId: roomId, userId: userId },
     });
 
